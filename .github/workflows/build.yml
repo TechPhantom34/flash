@@ -4,16 +4,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4 # Güncellendi
       - name: Adobe SDK Kur ve Derle
         run: |
-          # Burada açık kaynaklı Flex SDK (Adobe'nin derleyicisi) otomatik kurulur
           wget https://archive.apache.org/dist/flex/4.16.1/binaries/apache-flex-sdk-4.16.1-binaries.tar.gz
           tar -xzf apache-flex-sdk-4.16.1-binaries.tar.gz
-          # Kodunu saniyeler içinde gerçek bir SWF'ye çevirir
-          ./bin/mxmlc oyun.as -o sonuc.swf
+          # Derleyiciyi çalıştırılabilir hale getiriyoruz
+          chmod +x apache-flex-sdk-4.16.1-binaries/bin/mxmlc
+          ./apache-flex-sdk-4.16.1-binaries/bin/mxmlc oyun.as -o sonuc.swf
       - name: Dosyayı Bana Ver
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4 # İşte burası v4 oldu!
         with:
           name: BenimOyunum
           path: sonuc.swf
