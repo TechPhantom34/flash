@@ -6,24 +6,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Java Kur (Flex SDK için şart)
+      - name: Java 8 Kur
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '8' # Flex SDK en kararlı Java 8 ile çalışır
+          distribution: 'temurin'
+          java-version: '8'
 
-      - name: Adobe Flex SDK Kur ve Derle
+      - name: Flex SDK Hazırla ve Derle
         run: |
-          wget https://archive.apache.org/dist/flex/4.16.1/binaries/apache-flex-sdk-4.16.1-binaries.tar.gz
+          # SDK İndir ve Ayıkla
+          wget -q https://archive.apache.org/dist/flex/4.16.1/binaries/apache-flex-sdk-4.16.1-binaries.tar.gz
           tar -xzf apache-flex-sdk-4.16.1-binaries.tar.gz
           
-          # Derleyiciyi ve Java kütüphanelerini çalıştırılabilir yap
-          chmod +x apache-flex-sdk-4.16.1-binaries/bin/mxmlc
+          # Flex'e Java yolunu göster (En kritik adım)
+          export FLEX_HOME=$GITHUB_WORKSPACE/apache-flex-sdk-4.16.1-binaries
+          export JAVA_HOME=$JAVA_HOME_8_X64
           
-          # AS3 Derleme Komutu
-          ./apache-flex-sdk-4.16.1-binaries/bin/mxmlc oyun.as -static-link-runtime-shared-libraries=true -o sonuc.swf
+          # Derleme komutu (Hata detaylarını görmek için verbose ekledik)
+          ./apache-flex-sdk-4.16.1-binaries/bin/mxmlc \
+            -static-link-runtime-shared-libraries=true \
+            -target-player=32.0 \
+            oyun.as -o sonuc.swf || { echo "Derleme Hatası!"; exit 8; }
 
-      - name: Dosyayı Bana Ver
+      - name: Dosyayı Yükle
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: BenimOyunum
